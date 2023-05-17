@@ -1,0 +1,127 @@
+AutherizationService:
+Program:
+builder.Configuration.AddEnvironmentVariables();
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = false;
+    options.IncludeErrorDetails = true;
+    options.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["AimsAuth_JWT:Audience"],
+        ValidIssuer = builder.Configuration["AimsAuth_JWT:Issuer"],
+        IssuerSigningKey = JWTRsaSecurityKeyProvider.GetPublicKey("AimsAuth_JWT", builder.Configuration)
+    };
+});
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+
+AppSettings:
+"AimsAuth_JWT": {
+    "PrivateKey": "", //comes from env variables
+    "PublicKey": "", //comes from env variables
+    "Issuer": "AimsAuth",
+    "Audience": "AimsServices",
+    "DurationInMinutes": 600
+  }
+  
+Service:
+var authClaims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.UserName!),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.PrimarySid, user.Id),
+                new Claim(SharedJWTConsts.AIMS_LICENSE_ID, licenseId),
+                new Claim(SharedJWTConsts.AIMS_WORKSTATION_ID, stationId)
+            }; 
+			foreach (var userRole in userRoles)
+			{
+				authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+			}
+			
+			var authSigningKey = JWTRsaSecurityKeyProvider.GetPrivateKey("AimsAuth_JWT", configuration);
+
+			var newToken = new JwtSecurityToken(
+				issuer: configuration["AimsAuth_JWT:Issuer"],
+				claims: authClaims,
+				audience: configuration["AimsAuth_JWT:Audience"],
+				expires: DateTime.Now.AddMinutes(Convert.ToDouble(configuration["AimsAuth_JWT:DurationInMinutes"])),
+				signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.RsaSha256)
+				);
+				
+				
+Create Keys:
+using System.Security.Cryptography;
+
+using RSA rsa = RSA.Create();
+var privateKey = Convert.ToBase64String(rsa.ExportRSAPrivateKey());
+var publicKey = Convert.ToBase64String(rsa.ExportRSAPublicKey());
+
+
+Other Service:
+builder.Configuration.AddEnvironmentVariables();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = false;
+    options.IncludeErrorDetails = true;
+
+    options.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["AimsAuth_JWT:Audience"],
+        ValidIssuer = builder.Configuration["AimsAuth_JWT:Issuer"],
+        IssuerSigningKey = JWTRsaSecurityKeyProvider.GetPublicKey("AimsAuth_JWT", builder.Configuration)
+    };
+});
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+void SwaggerSetup(SwaggerGenOptions options)
+{
+    OpenApiSecurityScheme securityDefinition = new OpenApiSecurityScheme()
+    {
+        Name = "Bearer",
+        BearerFormat = "JWT",
+        Scheme = "bearer",
+        Description = "Specify the authorization token.",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+    };
+    options.AddSecurityDefinition("jwt_auth", securityDefinition);
+
+    // Make sure swagger UI requires a Bearer token specified
+    OpenApiSecurityScheme securityScheme = new OpenApiSecurityScheme()
+    {
+        Reference = new OpenApiReference()
+        {
+            Id = "jwt_auth",
+            Type = ReferenceType.SecurityScheme
+        }
+    };
+    OpenApiSecurityRequirement securityRequirements = new OpenApiSecurityRequirement()
+            {
+                {securityScheme, new string[] { } }
+            };
+    options.AddSecurityRequirement(securityRequirements);
+}
+
