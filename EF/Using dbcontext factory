@@ -1,0 +1,7 @@
+builder.Services.AddDbContextFactory<ProxyServiceContext>(options
+  => options.UseSqlServer(connectionString, x => x.MigrationsHistoryTable($"__{Assembly.GetExecutingAssembly().GetName().Name}_MigrationHistory")));
+
+
+, IDbContextFactory<ProxyServiceContext> dbContextFactory
+
+using var dbContext = dbContextFactory.CreateDbContext();
