@@ -1,0 +1,72 @@
+﻿<Window x:Class="Encryptor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Encryptor"
+        xmlns:fa5="http://schemas.fontawesome.com/icons/"
+        mc:Ignorable="d"
+        Height="450" 
+        Width="800" 
+        WindowStartupLocation="CenterScreen" 
+        WindowStyle="None" BorderBrush="Black"
+        ResizeMode="NoResize" Icon="password.png"
+        >
+    <Grid Background="#1A1A2E">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.Resources>
+            <Style TargetType="{x:Type TextBox}">
+                <Setter Property="Background" Value="#16213E"/>
+                <Setter Property="FontFamily" Value="Courier New"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="FontSize" Value="32"/>
+                <Setter Property="Foreground" Value="#F7F7F7"/>
+                <Setter Property="TextAlignment" Value="Center"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+            </Style>
+            <Style TargetType="{x:Type Button}" x:Key="ghostButton">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="FontFamily" Value="Courier New"/>
+                <Setter Property="FontSize" Value="32"/>
+                <Setter Property="Foreground" Value="#F7F7F7"/>
+                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Border Background="{TemplateBinding Background}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="DarkGoldenrod"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Resources>
+        <TextBox Grid.Row="0" Grid.ColumnSpan="3" Height="50" Width="780" Name="text" />
+        <TextBox Grid.Row="1" Grid.ColumnSpan="4" Height="50" Width="780" Name="passphrase"/>
+        <Button Grid.Row="2" Grid.ColumnSpan="1" Height="50" Width="50" Name="btnEncrypt" Grid.Column="0" Content="e" Click="btnEncrypt_Click" Style="{StaticResource ghostButton}"/>
+        <Button Grid.Row="2" Grid.ColumnSpan="1" Height="50" Width="50" Name="btnDecrypt" Grid.Column="2" Content="d" Click="btnDecrypt_Click" Style="{StaticResource ghostButton}"/>
+        <TextBox Grid.Row="3" Grid.ColumnSpan="3" Height="50" Width="780" Name="output" Background="#99A799" IsReadOnly="True"/>
+        <fa5:FontAwesome Grid.Row="4" Grid.Column="0" Icon="Regular_Copy" Foreground="#F7F7F7" FontSize="32" VerticalAlignment="Center" Cursor="Hand" MouseDown="FontAwesome_MouseDown" />
+        <fa5:FontAwesome Grid.Row="4" Grid.Column="1" Icon="Regular_TrashAlt" Foreground="#F7F7F7" FontSize="32" VerticalAlignment="Center" Cursor="Hand" Name="delete" MouseDown="delete_MouseDown" />
+        <fa5:FontAwesome Grid.Row="4" Grid.Column="2" Icon="Regular_MinusSquare" Foreground="#F7F7F7" FontSize="32" VerticalAlignment="Center" Cursor="Hand" Name="close" MouseDown="close_MouseDown" />
+
+
+    </Grid>
+</Window>
