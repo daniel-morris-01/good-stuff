@@ -1,0 +1,39 @@
+Class QueryModel
+{
+	public string BarCode { get; set; } = string.Empty;
+	public int PageNumber { get; set; } = 1;
+    public int PageSize { get; set; } = 10;
+    public string OrderBy { get; set; } = string.Empty;
+    public string OrderDirection { get; set; } = "desc";
+}
+
+async Task<(Item,int)> GetItemsByQueryAsync(QueryModel queryModel)
+{
+	using var dbContext = contextFactory.CreateDbContext();
+
+	var query = dbContext.Items.AsQueryable();
+
+	if(!string.IsNullOrWhitespace(queryModel.BarCode)
+	{	
+		query = query.Where(x => x.BarCode.Contains(queryModel.BarCode));
+	}
+
+	int count = await query.CountAsync();
+
+	if (OrderDirection == "asc")
+    {
+		query = query.OrderBy(x => x.Name);
+	}
+    if (OrderDirection == "desc")
+	{
+		query = query.OrderByDescending(x => x.Name);
+	}
+
+	if (queryModel.PageNumber > 0 && queryModel.PageSize > 0)
+	{
+		int skip = (queryModel.PageNumber - 1) * queryModel.PageSize;
+		query = query.Skip(skip).Take(queryModel.PageSize);
+	}
+
+	return (await query.ToListAsync(),count);
+}
