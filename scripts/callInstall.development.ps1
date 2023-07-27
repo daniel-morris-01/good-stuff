@@ -1,0 +1,1 @@
+Copy-Item "C:\Projects\Repos\TheBigRepo\desktop\InstallPowershellScripts\register-protocol.reg" -Destination "c:\scripts\";C:\Projects\Repos\TheBigRepo\desktop\InstallPowershellScripts\setServiceLogon.ps1;C:\Projects\Repos\TheBigRepo\desktop\InstallPowershellScripts\installService.ps1
