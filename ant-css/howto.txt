@@ -1,0 +1,4 @@
+1. copy index.less info root folder
+2. change the import to: 
+    @import 'antd/dist/antd.dark.less';
+3. run gulp (make sure nvm is 16)
